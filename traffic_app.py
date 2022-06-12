@@ -32,12 +32,11 @@ class ApiHandler:
         self.origin = origin
         self.destination = destination
         params = {
-            "origin" : self.origin,
-            "destination" : self.destination,
-            "departure_time" : "now",
+            "origin": self.origin,
+            "destination": self.destination,
+            "departure_time": "now",
             "alternatives": "true",
-            "key": self.apiKey
-
+            "key": self.apiKey,
         }
         apiCall = requests.get(self.url, params=params)
         return apiCall
@@ -45,28 +44,42 @@ class ApiHandler:
 
 def GetTrafficSummaryAndDuration(origin, destination) -> str:
 
-    
     api = ApiHandler()
-    traffic_json = api.response(origin, destination).json()
+    trafficResponse = api.response(origin, destination)
 
-    resultList = []
-    routes = traffic_json['routes']
+    # return non zero code if Google API doesn't respond properly,
+    # we don't want to send text messages if the api response is useless
+    if not trafficResponse.status_code == 200:
+        return 1
 
-    for route in routes:
-        summary = route['summary']
-        duration = route['legs'][0]['duration_in_traffic']['text']
-        resultList.append(summary + " " + duration)    
+    else:
 
-    resultString=" \n".join(str(elem) for elem in resultList)
-    return resultString
+        traffic_json = trafficResponse.json()
+        resultList = []
+        routes = traffic_json["routes"]
+
+        for route in routes:
+            summary = route["summary"]
+            duration = route["legs"][0]["duration_in_traffic"]["text"]
+            resultList.append(summary + " " + duration)
+
+        # join the list with newlines so we can just return a string
+        # for the text message.
+        resultString = " \n".join(str(elem) for elem in resultList)
+        return resultString
 
 
 def SendTrafficSummaryAndDuration(origin, destination):
 
     trafficString = GetTrafficSummaryAndDuration(origin, destination)
 
-    
-    textMessage = TwilioTextMessage(trafficString)
-    textMessage.send_message()
+    if trafficString == 1:
+        exit()
+    else:
+        textMessage = TwilioTextMessage(trafficString)
+        textMessage.send_message()
 
-SendTrafficSummaryAndDuration("Underwood,+Nottingham", "Alfreton+Park+Special+School,+Alfreton")
+
+SendTrafficSummaryAndDuration(
+    "Underwood,+Nottingham", "Alfreton+Park+Special+School,+Alfreton"
+)
