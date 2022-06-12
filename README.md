@@ -14,7 +14,7 @@ App to check the traffic to a given destination using Google Directions API and 
 Dockerfile and docker-compose.yml are included to help with running the app locally via docker and cron
 
 ## AWS Lambda Deployment
-To deploy to AWS Lamba:
+To deploy to AWS Lambda:
 
 - Identify all the packages required in requirements.txt
 - Find those packages in the virtual env folder structure `projectfolder/lib/python3.9/site-packages`
