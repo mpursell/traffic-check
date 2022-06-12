@@ -9,7 +9,7 @@ App to check the traffic to a given destination using Google Directions API and 
 - Twilio account
 - Phone number
 
-### Docker Deployment
+## Docker Deployment
 
 Dockerfile and docker-compose.yml are included to help with running the app locally via docker and cron
 
